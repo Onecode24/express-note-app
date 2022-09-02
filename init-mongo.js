@@ -1,8 +1,8 @@
 db.createUser({
     user: 'root',
-    password: 'mongoroot',
-    role : {
-        role: 'readWrite',
-        db: 'note-app   '
-    }
+    pwd: 'mongoroot',
+    roles :[ {
+        role: 'Admin',
+        db: 'noteapp'
+    }]
 })
