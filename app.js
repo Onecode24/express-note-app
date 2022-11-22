@@ -1,37 +1,48 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let express = require('express');
+let path = require('path');
+let cookieParser = require('cookie-parser');
+let logger = require('morgan');
+let bodyparser = require('body-parser')
+let mongoose = require('mongoose')
+let cors = require('cors')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+require('dotenv').config()
 
-var app = express();
-var router = express.Router();
+
+
+let app = express();
+
+let indexRouter = require('./app/controllers/index')
+let usersRouter = require('./app/controllers/users')
+ 
+
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyparser.json())
+app.use(bodyparser.urlencoded({extended:false}))
 
-// app.use('/api/v1',(req,res,next)=>{
-//     next();
-// })
+// Headers fo request and response
+app.use(cors())
 
-router.use((req, res, next) => {
-    console.log('%s %s %s', req.method, req.url, req.path);
-    next();
-  });
-
-router.use('/api/v1',(req,res,next)=>{
-    console.log('this route pass');
-    next();
+// Try connect app to mongo database in local
+mongoose.connect(process.env.MONGO_URI,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then((res)=>{
+    console.log('App connect to mongoDB ');
+})
+.catch((error)=>{
+    console.log(error,'\n Failed to connect to mongodb');
 })
 
-app.use('/api/v1', indexRouter);
-app.use('/api/v1/users', usersRouter);
-
+// Routing
+app.use('/api', indexRouter)
+app.use('/api/users', usersRouter)
 
 console.log("App listen on port 3000");
 
